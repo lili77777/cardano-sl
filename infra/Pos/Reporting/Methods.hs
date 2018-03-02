@@ -163,13 +163,13 @@ compressLogs files = liftIO $ do
     tarPackIndependently :: [FilePath] -> IO ByteString
     tarPackIndependently paths = do
         entries <- forM paths $ \p -> do
-            unlessM (doesFileExist p) $ throwM $
-                PackingError $ "can't pack log file " <> fromString p <>
+            pabs <- canonicalizePath p
+            unlessM ({-doesFileExist pabs-} return False) $ throwM $
+                PackingError $ "can't pack log file " <> fromString pabs <>
                                " because it doesn't exist or it's not a file"
             tPath <- either (throwM . PackingError . fromString)
                             pure
                             (Tar.toTarPath False $ takeFileName p)
-            pabs <- canonicalizePath p
             Tar.packFileEntry pabs tPath
         pure $ BSL.toStrict $ Tar.write entries
     getArchiveName = liftIO $ do

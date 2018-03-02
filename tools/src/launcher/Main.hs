@@ -645,7 +645,7 @@ reportNodeCrash
 reportNodeCrash exitCode logConfPath reportServ = do
     logConfig <- readLoggerConfig (toString <$> logConfPath)
     let logFileNames =
-            map ((fromMaybe "" (logConfig ^. Log.lcLogsDirectory) </>) . snd) $
+            map ((fromMaybe "wahaha" (logConfig ^. Log.lcLogsDirectory) </>) . snd) $
             retrieveLogFiles logConfig
     let logFiles = filter (".pub" `isSuffixOf`) logFileNames
     let ec = case exitCode of
