@@ -12,6 +12,9 @@ import           Formatting (build, sformat, (%))
 import           Serokell.Util.Text (listJsonIndent)
 import           System.Wlog (logDebug, logInfo)
 
+import           Control.Lens (views)
+
+
 import           Pos.Communication.Protocol (OutSpecs)
 import           Pos.Core (SoftwareVersion (..))
 import           Pos.Core.Update (UpdateProposal (..))
@@ -23,6 +26,7 @@ import           Pos.Update.Configuration (curSoftwareVersion)
 import           Pos.Update.Context (UpdateContext (..))
 import           Pos.Update.DB (getConfirmedProposals)
 import           Pos.Update.Download (downloadUpdate)
+import           Pos.Update.Params (UpdateParams (..))
 import           Pos.Update.Logic.Local (processNewSlot)
 import           Pos.Update.Mode (UpdateMode)
 import           Pos.Update.Poll.Types (ConfirmedProposalState (..))
@@ -67,14 +71,22 @@ checkForUpdate = do
                 svNumber . upSoftwareVersion . cpsUpdateProposal
         let newestCPS =
                 maximumBy (comparing cpsToNumericVersion) confirmedProposals
-        logInfo $
-            sformat
-                ("There are new confirmed update proposals for our application: "
-                 %listJsonIndent 2%
-                 "\n The newest one is: "%build%" and we want to download it")
-                (cpsUpdateProposal <$> confirmedProposals)
-                (cpsUpdateProposal newestCPS)
-        downloadUpdate newestCPS
+
+        ifM (noServersProvided newestCPS) (logInfo "There is no servers provided") $ do
+            logInfo $
+                sformat
+                    ("There are new confirmed update proposals for our application: "
+                    %listJsonIndent 2%
+                    "\n The newest one is: "%build%" and we want to download it")
+                    (cpsUpdateProposal <$> confirmedProposals)
+                    (cpsUpdateProposal newestCPS)
+            downloadUpdate newestCPS
+
+    noServersProvided :: ConfirmedProposalState -> m Bool
+    noServersProvided ConfirmedProposalState {..} = do
+        updateServers <- views (lensOf @UpdateParams) upUpdateServers
+        return (updateServers == [])
+
 
 -- | This worker is just waiting until we download an update for our
 -- application. When an update is downloaded, it shuts the system
