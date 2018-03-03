@@ -23,6 +23,7 @@ import           Network.HTTP.Simple (getResponseBody, getResponseStatus, getRes
 import qualified Serokell.Util.Base16 as B16
 import           Serokell.Util.Text (listJsonIndent, mapJson)
 import           System.Directory (doesFileExist)
+import           System.Timeout (timeout)
 import           System.Wlog (WithLogger, logDebug, logInfo, logWarning)
 
 import           Pos.Binary.Class (Raw)
@@ -149,10 +150,12 @@ downloadUpdateDo updHash cps@ConfirmedProposalState {..} = do
   where
     handleErr e =
         Left (pretty e) <$ reportOrLogW "Update downloading failed: " e
+
     logDownloadError e =
         logWarning $ sformat
             ("Failed to download update proposal "%build%": "%stext)
             cpsUpdateProposal e
+
     -- Check that we really should download an update with given
     -- 'SoftwareVersion'.
     isVersionAppropriate :: SoftwareVersion -> Bool
@@ -171,10 +174,11 @@ downloadHash updateServers h = do
     manager <- liftIO $ newManager tlsManagerSettings
 
     let -- try all servers in turn until there's a Right
+        maxLatency = 2 * 10 ^ (9 :: Int) -- 30 min is enough?
         go errs (serv:rest) = do
             let uri = toString serv <//> showHash h
             logDebug $ "Trying url " <> show uri
-            liftIO (downloadUri manager uri h) >>= \case
+            liftIO (withTimeOut maxLatency (downloadUri manager uri h)) >>= \case
                 Left e -> go (e:errs) rest
                 Right r -> return (Right r)
 
@@ -190,6 +194,15 @@ downloadHash updateServers h = do
   where
     showHash :: Hash a -> FilePath
     showHash = toString . B16.encode . BA.convert
+
+    withTimeOut :: Int 
+                -> IO (Either Text LByteString)
+                -> IO (Either Text LByteString)
+    withTimeOut maxLatency action = do
+        timeout maxLatency action >>= \case 
+            Nothing -> return $ Left "Timeout occured while downloading an update"
+            Just (Left e) -> return $ Left e
+            Just (Right r) -> return $ Right r
 
 -- Download a file and check its hash.
 downloadUri :: Manager
@@ -210,6 +223,6 @@ downloadUri manager uri h = do
 * check timeouts?
 * how should we in general deal with e.g. 1B/s download speed?
 * if we expect updates to be big, use laziness/conduits (httpLBS isn't lazy,
-  despite the “L” in its name)
+despite the “L” in its name)
 
 -}
