@@ -36,9 +36,7 @@ import           Data.Aeson (encode)
 import           Data.Bits (Bits (..))
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
-import           Data.Conduit (runConduitRes, yield, (.|))
-import           Data.Conduit.List (consume)
-import qualified Data.Conduit.Lzma as Lzma
+import           Codec.Compression.Lzma
 import qualified Data.HashMap.Strict as HM
 import           Data.List (isSuffixOf)
 import qualified Data.List.NonEmpty as NE
@@ -156,10 +154,7 @@ withCompressedLogs ::
     -> m a
 withCompressedLogs files action = do
     tar <- liftIO $ tarPackIndependently files
-    tarxz <-
-        liftIO $
-        BS.concat <$>
-        runConduitRes (yield tar .| Lzma.compress (Just 0) .| consume)
+    let tarxz = compressStrict tar
     aName <- getArchiveName
     bracket (openFile aName WriteMode)
             (\h -> liftIO (hClose h >> removeFile aName))
@@ -183,6 +178,11 @@ withCompressedLogs files action = do
         curTime <- formatTime defaultTimeLocale "%q" <$> getCurrentTime
         tempDir <- getTemporaryDirectory
         pure $ tempDir <//> ("report-" <> take 6 curTime <> ".tar.lzma")
+    compressStrict = BSL.toStrict .
+                     compressWith
+                     defaultCompressParams
+                     { compressLevel = CompressionLevel0 } .
+                     BSL.fromStrict
 
 -- | Creates a temp file from given text
 withTempLogFile :: (MonadIO m, MonadMask m) => Text -> (FilePath -> m a) -> m a
