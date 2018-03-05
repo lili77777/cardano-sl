@@ -7698,7 +7698,7 @@ inherit (pkgs) mesa;};
          , cardano-sl-util, cardano-sl-wallet, constraints, containers
          , data-default, ether, exceptions, formatting, generics-sop, hspec
          , http-api-data, http-client, http-types, insert-ordered-containers
-         , ixset-typed, json-sop, lens, log-warper, memory, mtl
+         , ixset-typed, json-sop, lens, log-warper, memory, MonadRandom, mtl
          , neat-interpolation, network-uri, optparse-applicative, QuickCheck
          , quickcheck-instances, safe-exceptions, serokell-util, servant
          , servant-client, servant-quickcheck, servant-server
@@ -7731,11 +7731,11 @@ inherit (pkgs) mesa;};
              cardano-sl-networking cardano-sl-ssc cardano-sl-txp
              cardano-sl-update cardano-sl-util cardano-sl-wallet containers
              data-default exceptions formatting http-api-data http-types
-             insert-ordered-containers ixset-typed lens log-warper memory mtl
-             neat-interpolation optparse-applicative QuickCheck serokell-util
-             servant servant-server servant-swagger stm string-conv swagger2
-             text text-format time-units universum unordered-containers wai
-             wai-cors wai-extra warp
+             insert-ordered-containers ixset-typed lens log-warper memory
+             MonadRandom mtl neat-interpolation optparse-applicative QuickCheck
+             serokell-util servant servant-server servant-swagger stm
+             string-conv swagger2 text text-format time-units universum
+             unordered-containers wai wai-cors wai-extra warp
            ];
            testHaskellDepends = [
              aeson aeson-pretty base bytestring cardano-sl cardano-sl-binary
