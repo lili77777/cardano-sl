@@ -37,7 +37,7 @@ import           Serokell.Util.ANSI (Color (Blue, Red), colorize)
 import           Pos.Aeson.Core ()
 import           Pos.Aeson.Update ()
 import           Pos.Core (ApplicationName, BlockVersion (..), SoftwareVersion (..))
-import           Pos.Core.Update (SystemTag (..), archHelper, osHelper, checkSystemTag)
+import           Pos.Core.Update (SystemTag (..), archHelper, checkSystemTag, osHelper)
 
 ----------------------------------------------------------------------------
 -- Config itself
@@ -105,7 +105,7 @@ currentSystemTag =
              st = checkSystemTag tag
 
 #ifdef mingw32_HOST_OS
-             color _ s = "\n" <> s <> "\n
+             color _ s = "\n" <> s <> "\n"
 #else
              color c s = "\n" <> colorize c s <> "\n"
 #endif
