@@ -107,7 +107,7 @@ extra-deps:
   commit: da4247b5b3420120e20451e6a252e2a2ca15b43c
 ## logging report server
 - git: https://github.com/input-output-hk/cardano-report-server.git
-  commit: 6401a42dfa669bfa5767d14d83ad7a0acd9fdc7f # chshersh/csl2125-new-universum v0.4.7
+  commit: 0f4d1fc44b18d7bc496a2435b63e36a39bd98d22 # chshersh/csl2125-new-universum v0.4.9
 
 # These three are needed for cardano-sl-networking
 - git: https://github.com/serokell/network-transport-tcp
