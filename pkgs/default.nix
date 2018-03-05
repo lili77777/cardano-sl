@@ -7387,11 +7387,11 @@ inherit (pkgs) mesa;};
          }:
          mkDerivation {
            pname = "cardano-report-server";
-           version = "0.4.7";
+           version = "0.4.9";
            src = fetchgit {
              url = "https://github.com/input-output-hk/cardano-report-server.git";
-             sha256 = "0g01w4w72cfqn88dsbi753qnd47l58lzcjh684773myv76xw2gqs";
-             rev = "6401a42dfa669bfa5767d14d83ad7a0acd9fdc7f";
+             sha256 = "143jqpgw2a76mc2m6fypbvcfx0m8yxx8gc7pxllxcff0ps9smk9v";
+             rev = "0f4d1fc44b18d7bc496a2435b63e36a39bd98d22";
            };
            isLibrary = true;
            isExecutable = true;
