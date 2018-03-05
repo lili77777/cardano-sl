@@ -8,12 +8,10 @@ module Pos.Update.Worker
 
 import           Universum
 
+import           Control.Lens (views)
 import           Formatting (build, sformat, (%))
 import           Serokell.Util.Text (listJsonIndent)
 import           System.Wlog (logDebug, logInfo)
-
-import           Control.Lens (views)
-
 
 import           Pos.Communication.Protocol (OutSpecs)
 import           Pos.Core (SoftwareVersion (..))
@@ -26,9 +24,9 @@ import           Pos.Update.Configuration (curSoftwareVersion)
 import           Pos.Update.Context (UpdateContext (..))
 import           Pos.Update.DB (getConfirmedProposals)
 import           Pos.Update.Download (downloadUpdate)
-import           Pos.Update.Params (UpdateParams (..))
 import           Pos.Update.Logic.Local (processNewSlot)
 import           Pos.Update.Mode (UpdateMode)
+import           Pos.Update.Params (UpdateParams (..))
 import           Pos.Update.Poll.Types (ConfirmedProposalState (..))
 import           Pos.Util.Util (lensOf)
 import           Pos.Worker.Types (WorkerSpec, localOnNewSlotWorker, worker)

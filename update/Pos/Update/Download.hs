@@ -135,21 +135,22 @@ downloadUpdateDo updHash cps@ConfirmedProposalState {..} = do
                 file <- ExceptT $ downloadHash updateServers updHash <&>
                         first (sformat ("Update download (hash "%build%
                                         ") has failed: "%stext) updHash)
-        
+
                 logInfo $ "Update was downloaded, saving to " <> show updPath
-        
+
                 liftIO $ BSL.writeFile updPath file
                 logInfo $ "Update was downloaded, saved to " <> show updPath
 
-        fileIsOnDrive <- liftIO $ (doesFileExist updPath)
+        -- Check if an update is already downloaded to `updPath`.
+        -- If it is valid one, it would be passed to `downloadedMVar`.
+        fileIsOnDrive <- liftIO $ doesFileExist updPath
         if fileIsOnDrive
             then do
                 logInfo $ sformat ("Found an update file: "%stext) (toText updPath)
                 localUpdateFile <- liftIO $ BSL.readFile updPath -- could be an error while reading
                 validPkgHash <- lift $ getUpdateHash cps
-                let fileIsValidUpdate = (installerHash localUpdateFile) == validPkgHash
 
-                if fileIsValidUpdate
+                if (installerHash localUpdateFile) == validPkgHash
                     then logInfo $ "It would be used to install an update"
                     else do
                         logInfo $ "File failed Hash check and would be removed. Update would be downloaded via network"
@@ -227,6 +228,6 @@ downloadUri manager uri h = do
 * check timeouts?
 * how should we in general deal with e.g. 1B/s download speed?
 * if we expect updates to be big, use laziness/conduits (httpLBS isn't lazy,
-despite the “L” in its name)
+  despite the “L” in its name)
 
 -}
